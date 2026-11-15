@@ -1,2 +1,2 @@
 # analisis-inferensial-kebiasaan-belajar
-Uji hipotesis statistik (T-Test, ANOVA, Chi-Square) pada data kebiasaan belajar mahasiswa.
+Analisis statistik inferensial (uji hipotesis, regresi, ANOVA) dan panduan interpretasi pada data kebiasaan belajar mahasiswa.
