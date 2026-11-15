@@ -1,0 +1,440 @@
+# ⚡ QUICK REFERENCE — ANALISIS INFERENSIAL
+
+## 1. DECISION TREE: MEMILIH TEST STATISTIK
+
+```
+┌─ Berapa kelompok yang akan dibandingkan?
+│
+├─ 1 KELOMPOK
+│  └─ Apakah normal?
+│     ├─ YA  → ONE-SAMPLE t-TEST
+│     └─ TIDAK → WILCOXON SIGNED-RANK TEST
+│
+├─ 2 KELOMPOK (Independen)
+│  └─ Apakah normal dan varians sama?
+│     ├─ YA  → INDEPENDENT t-TEST
+│     └─ TIDAK → MANN-WHITNEY U TEST
+│
+├─ 2 KELOMPOK (Paired/Dependen)
+│  └─ Apakah normal?
+│     ├─ YA  → PAIRED t-TEST
+│     └─ TIDAK → WILCOXON SIGNED-RANK TEST
+│
+├─ 3+ KELOMPOK
+│  ├─ Apakah normal?
+│  │  ├─ YA  → ONE-WAY ANOVA → Signifikan? → TUKEY HSD
+│  │  └─ TIDAK → KRUSKAL-WALLIS TEST
+│  │
+│  └─ Ada faktor lain? (covariat)
+│     └─ YA → ANCOVA (ANOVA dengan covariate)
+│
+└─ Hubungan KONTINYU ↔ KONTINYU
+   ├─ Apakah normal?
+   │  ├─ YA  → PEARSON CORRELATION
+   │  └─ TIDAK → SPEARMAN CORRELATION
+   │
+   └─ Prediksi?
+      └─ YA → LINEAR REGRESSION
+```
+
+---
+
+## 2. FORMULA CHEAT SHEET
+
+### Confidence Intervals
+
+```
+MEAN (t-based):
+CI = X̄ ± (t* × SE)
+SE = s / √n
+t* dari t-distribution table (df = n-1, α = 0.05)
+
+PROPORTION:
+CI = p̂ ± (z* × √(p̂(1-p̂)/n))
+z* ≈ 1.96 untuk 95% CI
+```
+
+### Hypothesis Testing Statistics
+
+```
+ONE-SAMPLE t-TEST:
+t = (X̄ - μ₀) / (s/√n)
+df = n - 1
+
+INDEPENDENT t-TEST:
+t = (X̄₁ - X̄₂) / √(sp²(1/n₁ + 1/n₂))
+sp² = ((n₁-1)s₁² + (n₂-1)s₂²) / (n₁+n₂-2)
+df = n₁ + n₂ - 2
+
+PAIRED t-TEST:
+t = (D̄) / (sD/√n)
+D̄ = mean of differences
+df = n - 1
+
+ONE-WAY ANOVA:
+F = MS_between / MS_within
+MS = SS / df
+```
+
+### Effect Sizes
+
+```
+COHEN'S d (untuk t-test):
+d = (X̄₁ - X̄₂) / sp
+Interpretation: |d| < 0.2 (small), 0.5 (medium), 0.8 (large)
+
+ETA-SQUARED (untuk ANOVA):
+η² = SS_between / SS_total
+Interpretation: η² < 0.01 (small), 0.06 (medium), >0.14 (large)
+
+PEARSON r (untuk correlation):
+r = Σ((x-x̄)(y-ȳ)) / √(Σ(x-x̄)² × Σ(y-ȳ)²)
+R² = r² (coefficient of determination)
+
+CRAMÉR'S V (untuk chi-square):
+V = √(χ² / (n × min(k-1, r-1)))
+```
+
+---
+
+## 3. P-VALUE INTERPRETATION QUICK TABLE
+
+| p-value | Interpretation | Decision | Notes |
+|---------|---|----------|-------|
+| p < 0.001 | Highly Significant | *** Tolak H₀ | Very strong evidence |
+| p < 0.01 | Very Significant | ** Tolak H₀ | Strong evidence |
+| p < 0.05 | Significant | * Tolak H₀ | Moderate evidence |
+| p ≥ 0.05 | Not Significant | ns Gagal tolak H₀ | Insufficient evidence |
+
+---
+
+## 4. ASUMSI TESTS PARAMETRIK
+
+### Normalitas (Shapiro-Wilk Test)
+
+```
+H₀: Data normal
+p > 0.05 → Anggap normal
+p < 0.05 → Data tidak normal (gunakan test non-parametrik)
+
+Cara Check: histogram, Q-Q plot, atau formal test
+```
+
+### Homogeneity of Variance (Levene Test)
+
+```
+H₀: Varians sama antar grup
+p > 0.05 → Anggap varians sama
+p < 0.05 → Varians berbeda (gunakan Welch's correction)
+
+Untuk t-test:
+- Jika p_levene > 0.05: gunakan Student's t-test
+- Jika p_levene < 0.05: gunakan Welch's t-test
+```
+
+### Independence (Durbin-Watson untuk Regression)
+
+```
+DW = Σ(et - et-1)² / Σet²
+DW ≈ 2 → Independen
+DW < 1 atau > 3 → Ada autocorrelation
+```
+
+---
+
+## 5. REGRESSION MODEL DIAGNOSTICS
+
+### How to Read Regression Output
+
+```
+Model: Y = β₀ + β₁X₁ + β₂X₂ + ... + ε
+
+COEFFICIENT TABLE:
+           Coef     Std.Err    t-stat    p-value    [95% CI]
+β₀      -0.543     0.234     -2.32      0.029*    [-1.01, -0.08]
+X₁       0.345     0.087      3.97      <0.001*** [0.17, 0.52]
+X₂      -0.021     0.056     -0.38      0.707     [-0.13, 0.09]
+
+Interpretasi β₁:
+→ Setiap kenaikan X₁ sebesar 1 unit, Y meningkat 0.345 unit
+→ Signifikan pada α = 0.05 (p < 0.001)
+→ 95% CI: effect size antara 0.17 hingga 0.52
+```
+
+### Model Performance Metrics
+
+```
+R²          : % variance explained (0-1, lebih tinggi lebih baik)
+Adj. R²     : R² yang disesuaikan untuk jumlah predictors
+AIC/BIC     : Penalti untuk overfitting (lebih rendah lebih baik)
+RMSE        : Root Mean Square Error (prediction error)
+F-statistic : Overall model significance
+
+Rule of Thumb:
+R² > 0.70   : Strong model
+R² 0.50-0.70: Moderate model
+R² < 0.30   : Weak model
+```
+
+### Residual Diagnostics Checklist
+
+```
+□ Linearity        : Scatter plot - ada pola linear?
+□ Homoscedasticity : Residuals vs Fitted - spread konstan?
+□ Normality        : Q-Q plot - points pada diagonal?
+□ Independence     : Durbin-Watson test - DW ≈ 2?
+□ No Outliers      : Cook's distance < 1?
+□ Multicollinearity: VIF < 5?
+```
+
+---
+
+## 6. POST-HOC TESTS QUICK GUIDE
+
+### Tukey HSD (untuk ANOVA)
+
+```
+Gunakan jika: ANOVA signifikan dan sampel size sama antar grup
+
+Tukey HSD = q* × √(MS_error / n)
+q* dari studentized range distribution
+
+Interpretasi:
+Jika |mean₁ - mean₂| > HSD → Perbedaan signifikan
+```
+
+### Bonferroni Correction
+
+```
+Gunakan jika: Multiple comparisons (mengurangi Type I error)
+
+Adjusted α = α_original / jumlah comparisons
+
+Contoh: 6 comparisons, α = 0.05
+Adjusted α = 0.05 / 6 = 0.0083
+```
+
+### Dunnett's Test
+
+```
+Gunakan jika: Membandingkan k-1 treatments dengan 1 control group
+Lebih powerful daripada Tukey jika ada control
+```
+
+---
+
+## 7. EFFECT SIZE INTERPRETATION
+
+### Cohen's Classification
+
+| Test | Small | Medium | Large |
+|------|-------|--------|-------|
+| **d** (t-test) | 0.2 | 0.5 | 0.8 |
+| **η²** (ANOVA) | 0.01 | 0.06 | 0.14 |
+| **ω²** (ANOVA) | 0.01 | 0.06 | 0.14 |
+| **r** (corr) | 0.1 | 0.3 | 0.5 |
+| **V** (chi-sq) | 0.1 | 0.3 | 0.5 |
+
+### Reporting Effect Size
+
+```
+BAIK: "t(28) = 2.34, p = 0.027, d = 0.45 (medium effect)"
+KURANG BAIK: "t(28) = 2.34, p = 0.027"
+SANGAT BAIK: "Laki-laki (M=2.1) vs Perempuan (M=2.3), t(28)=2.34, p=0.027, 
+d=0.45. Perbedaan medium effect ini menunjukkan..."
+```
+
+---
+
+## 8. STATISTICAL POWER & SAMPLE SIZE
+
+### Post-Hoc Power Analysis
+
+```
+Power = 1 - β (probabilitas mendeteksi effect jika ada)
+
+Ideal: Power ≥ 0.80 (20% chance Type II error)
+
+Jika observed power < 0.80:
+→ Ada kemungkinan Type II error
+→ Laporan sebagai "trend" bukan "significant"
+→ Rekomendasikan study dengan N lebih besar
+```
+
+### Sample Size Recommendations
+
+```
+One-sample t-test:    N ≥ 30
+Two-sample t-test:    N ≥ 30 per group
+One-way ANOVA:        N ≥ 20 per group
+Correlation/Regression: N ≥ 10 × (jumlah predictors)
+Chi-square:           Expected cell frequency ≥ 5
+```
+
+---
+
+## 9. COMMON MISTAKES & HOW TO AVOID
+
+```
+❌ KESALAHAN                          ✓ CARA BENAR
+─────────────────────────────────────────────────────────────
+Lapor hanya p-value              → Lapor p + effect size + CI
+Asumsikan normal tanpa test      → Test normalitas dulu (Shapiro)
+Gunakan t-test tanpa cek varian  → Check Levene test dulu
+Multiple comparisons tanpa HSD   → Use post-hoc test
+Overfitting model dengan banyak  → Check adjusted R²
+  predictors                        
+Mengabaikan outliers             → Check residuals & Cook's D
+Menarik causal inference dari    → Hanya korelasi, bukan causation
+  correlation                    
+Lapor "p = 0.000"               → Lapor "p < 0.001"
+```
+
+---
+
+## 10. PYTHON CODE SNIPPETS
+
+### Load Data & Basic Setup
+
+```python
+import pandas as pd
+from scipy import stats
+import numpy as np
+
+df = pd.read_excel('data.xlsx', sheet_name='Input Data', header=3)
+df_clean = df.dropna()
+n = len(df_clean)
+```
+
+### One-Sample t-Test
+
+```python
+from scipy.stats import ttest_1samp
+
+data = df['column'].dropna()
+t_stat, p_val = ttest_1samp(data, popmean=2.5)
+print(f"t = {t_stat:.4f}, p = {p_val:.4f}")
+```
+
+### Independent t-Test
+
+```python
+from scipy.stats import ttest_ind, levene
+
+group1 = df[df['gender']=='M']['hours'].dropna()
+group2 = df[df['gender']=='F']['hours'].dropna()
+
+# Check homogeneity
+f_lev, p_lev = levene(group1, group2)
+print(f"Levene: p = {p_lev:.4f}")
+
+# t-test
+t_stat, p_val = ttest_ind(group1, group2, equal_var=(p_lev>0.05))
+print(f"t = {t_stat:.4f}, p = {p_val:.4f}")
+```
+
+### One-Way ANOVA with Post-Hoc
+
+```python
+from scipy.stats import f_oneway
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+# ANOVA
+groups = [df[df['ipk']==cat]['hours'].dropna() for cat in ['A','B','C','D']]
+f_stat, p_val = f_oneway(*groups)
+print(f"F = {f_stat:.4f}, p = {p_val:.4f}")
+
+# Tukey HSD
+data_for_tukey = df[['hours','ipk']].dropna()
+tukey = pairwise_tukeyhsd(endog=data_for_tukey['hours'], 
+                           groups=data_for_tukey['ipk'],
+                           alpha=0.05)
+print(tukey)
+```
+
+### Linear Regression
+
+```python
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+
+model = ols('satisfaction ~ hours + frequency + distraction', 
+            data=df).fit()
+print(model.summary())
+
+# Check residuals
+residuals = model.resid
+print(f"Shapiro-Wilk: {stats.shapiro(residuals)}")
+```
+
+### Pearson Correlation
+
+```python
+from scipy.stats import pearsonr
+
+r, p_val = pearsonr(df['hours'], df['satisfaction'])
+print(f"r = {r:.4f}, p = {p_val:.4f}, R² = {r**2:.4f}")
+```
+
+### Chi-Square Test
+
+```python
+from scipy.stats import chi2_contingency
+
+contingency = pd.crosstab(df['gender'], df['frequency'])
+chi2, p_val, dof, expected = chi2_contingency(contingency)
+print(f"χ² = {chi2:.4f}, p = {p_val:.4f}")
+```
+
+---
+
+## 11. TEMPLATE LAPORAN RESULTS SECTION
+
+```
+3.1 Descriptive Statistics and Confidence Intervals
+
+Sampel terdiri dari N = 31 responden (M_gender = 58% perempuan).
+Tabel 3.1 menunjukkan deskriptif statistik dan 95% confidence intervals
+untuk semua variabel utama.
+
+[TABLE 3.1 DESKRIPTIF]
+
+3.2 Assumptions Testing
+
+Sebelum melakukan parametric tests, kami menguji asumsi normalitas
+menggunakan Shapiro-Wilk test. Hasil menunjukkan bahwa [VARIABEL] 
+normal (W = X.XX, p = X.XXX), sedangkan [VARIABEL LAIN] tidak normal 
+(W = X.XX, p < 0.05). Berdasarkan hasil ini, kami menggunakan [parametric/
+non-parametric] tests.
+
+3.3 Hypothesis Testing
+
+[Laporan per hypothesis dengan p-values, effect sizes, dan CI]
+
+3.4 Regression Analysis
+
+Model regresi multiple dengan 3 predictors menjelaskan XX% varians dalam
+kepuasan belajar, F(3,27) = X.XX, p < 0.001. Tabel 3.2 menunjukkan
+koefisien regresi...
+
+3.5 Correlations
+
+Analisis korelasi Pearson mengungkapkan... (lihat Tabel 3.3)
+```
+
+---
+
+**REMEMBER:**
+- ✓ Always report p-values AND effect sizes
+- ✓ Check assumptions before choosing test
+- ✓ Interpret p-values correctly (NOT probability hypothesis is true)
+- ✓ Be honest about limitations and Type II errors
+- ✓ Use confidence intervals to convey uncertainty
+- ✓ Replicate findings with independent sample if possible
+
+---
+
+**Quick Links:**
+- Formula Reference: See Section 2
+- Decision Tree: See Section 1
+- Python Code: See Section 10
